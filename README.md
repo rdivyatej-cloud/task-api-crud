@@ -1,27 +1,20 @@
+# Task API CRUD (PostgreSQL + Docker)
 
-# Task API CRUD with SQLite
-
-## Project Overview
-
-This project is a RESTful Task Management API built using **Node.js**, **Express.js**, and **SQLite**. It supports full CRUD (Create, Read, Update, Delete) operations while storing data in a SQLite database instead of an in-memory array.
-
-The API stores data permanently in SQLite, so tasks remain available even after restarting the server.
+A RESTful Task Management API built with Node.js, Express.js, PostgreSQL, and Docker. The API supports full CRUD operations, uses PostgreSQL for persistent storage, and includes interactive API documentation with Swagger UI.
 
 ---
 
 ## Features
 
-- Create a new task
-- Retrieve all tasks
-- Retrieve a task by ID
-- Update an existing task
-- Delete a task
-- SQLite database integration
-- Persistent storage
-- Automatic database and table creation
-- Three sample tasks inserted on first run
-- Swagger API documentation
-- Error handling
+- RESTful CRUD API
+- PostgreSQL database
+- Dockerized PostgreSQL
+- Docker Compose support
+- Swagger API Documentation
+- Environment variable configuration using `.env`
+- Automatic database initialization
+- Sample task seeding
+- Persistent data storage
 
 ---
 
@@ -29,72 +22,68 @@ The API stores data permanently in SQLite, so tasks remain available even after 
 
 - Node.js
 - Express.js
-- SQLite
-- better-sqlite3
+- PostgreSQL
+- Docker
+- Docker Compose
+- pg
+- dotenv
 - Swagger UI
-- Postman
-
----
-
-## Why SQLite?
-
-SQLite is lightweight, serverless, easy to configure, and stores all data in a single file (`tasks.db`). It is ideal for learning SQL and building small backend applications.
 
 ---
 
 ## Project Structure
 
-```text
+```
 task-api-crud/
-│── images/
-│── server.js
+│── .env
+│── .env.example
+│── .gitignore
+│── docker-compose.yml
 │── openapi.json
 │── package.json
+│── package-lock.json
 │── README.md
-│── tasks.db
-└── .gitignore
+│── server.js
+│── images/
 ```
 
 ---
 
 ## Installation
 
-Clone the repository:
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/rdivyatej-cloud/task-api-crud.git
-```
-
-Move into the project folder:
-
-```bash
 cd task-api-crud
 ```
 
-Install dependencies:
+### 2. Install dependencies
 
 ```bash
 npm install
 ```
 
----
+### 3. Create a `.env` file
 
-## Run the Project
+Create a `.env` file in the project root.
+
+Example:
+
+```env
+DATABASE_URL=postgres://postgres:dev@localhost:5432/tasks
+```
+
+### 4. Start PostgreSQL
+
+```bash
+docker compose up -d
+```
+
+### 5. Run the application
 
 ```bash
 node server.js
-```
-
-The API runs at:
-
-```
-http://localhost:3000
-```
-
-Swagger documentation:
-
-```
-http://localhost:3000/docs
 ```
 
 ---
@@ -102,41 +91,100 @@ http://localhost:3000/docs
 ## API Endpoints
 
 | Method | Endpoint | Description |
-|---------|----------|-------------|
-| GET | /tasks | Get all tasks |
-| GET | /tasks/:id | Get task by ID |
-| POST | /tasks | Create a task |
-| PUT | /tasks/:id | Update a task |
-| DELETE | /tasks/:id | Delete a task |
+|--------|----------|-------------|
+| GET | `/` | API Information |
+| GET | `/health` | Health Check |
+| GET | `/tasks` | Get all tasks |
+| GET | `/tasks/:id` | Get task by ID |
+| POST | `/tasks` | Create a new task |
+| PUT | `/tasks/:id` | Update a task |
+| DELETE | `/tasks/:id` | Delete a task |
 
 ---
 
-## Example SQL Query
+## Example Request
 
-```sql
-SELECT * FROM tasks;
+### Create Task
+
+**POST** `/tasks`
+
+```json
+{
+  "title": "Complete Assignment",
+  "done": false
+}
 ```
 
-This query returns all records from the `tasks` table.
+### Example Response
+
+```json
+{
+  "id": 4,
+  "title": "Complete Assignment",
+  "done": false
+}
+```
 
 ---
 
-## Database Screenshot
+## Swagger Documentation
 
-![Database Screenshot](images/database.png)
+After starting the server, open:
+
+```
+http://localhost:3000/docs
+```
 
 ---
 
-## Learning Outcomes
+## Docker Commands
 
-Through this project I learned:
+Start PostgreSQL:
 
-- Building REST APIs using Express.js
-- Implementing CRUD operations
-- Working with SQLite databases
-- Writing SQL queries
-- Using Swagger for API documentation
-- Version control with Git and GitHub
+```bash
+docker compose up -d
+```
+
+Stop PostgreSQL:
+
+```bash
+docker compose down
+```
+
+View running containers:
+
+```bash
+docker ps
+```
+
+---
+
+## Environment Variables
+
+Create a `.env` file using the template in `.env.example`.
+
+Example:
+
+```env
+DATABASE_URL=postgres://postgres:dev@localhost:5432/tasks
+```
+
+---
+
+## Testing
+
+Run the application:
+
+```bash
+node server.js
+```
+
+Test the following endpoints:
+
+- http://localhost:3000/
+- http://localhost:3000/health
+- http://localhost:3000/tasks
+- http://localhost:3000/docs
 
 ---
 
@@ -144,5 +192,8 @@ Through this project I learned:
 
 **Divyatej**
 
-GitHub: https://github.com/rdivyatej-cloud
-<img width="1298" height="827" alt="database1 png" src="https://github.com/user-attachments/assets/57c0ef85-06ef-4b44-87f2-1e72f1884e3b" />
+---
+
+## License
+
+This project was created for educational purposes as part of the Flyrank Backend API assignment.

@@ -16,7 +16,7 @@ A simple RESTful CRUD API built using Node.js and Express.
 Clone the repository:
 
 ```bash
-git clone <repository-url>
+git clone <[repository-url](https://github.com/rdivyatej-cloud/task-api-crud)>
 ```
 
 Install dependencies:

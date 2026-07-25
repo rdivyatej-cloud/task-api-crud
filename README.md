@@ -1,3 +1,4 @@
+<img width="1917" height="1057" alt="Swagger png" src="https://github.com/user-attachments/assets/40447b88-a27b-4a0d-aa14-896920b6790a" />
 # Task API CRUD
 
 A simple RESTful CRUD API built using Node.js and Express.

@@ -4,7 +4,23 @@
 
 This project is a RESTful Task Management API built using **Node.js**, **Express.js**, and **SQLite**. It supports full CRUD (Create, Read, Update, Delete) operations while storing data in a SQLite database instead of an in-memory array.
 
-The API behavior remains the same as the previous assignment, but data is now stored permanently in a database and survives server restarts.
+The API stores data permanently in SQLite, so tasks remain available even after restarting the server.
+
+---
+
+## Features
+
+- Create a new task
+- Retrieve all tasks
+- Retrieve a task by ID
+- Update an existing task
+- Delete a task
+- SQLite database integration
+- Persistent storage
+- Automatic database and table creation
+- Three sample tasks inserted on first run
+- Swagger API documentation
+- Error handling
 
 ---
 
@@ -21,19 +37,22 @@ The API behavior remains the same as the previous assignment, but data is now st
 
 ## Why SQLite?
 
-SQLite was chosen because it is lightweight, serverless, easy to configure, and stores all data in a single database file (`tasks.db`). It is ideal for learning SQL and building small backend applications.
+SQLite is lightweight, serverless, easy to configure, and stores all data in a single file (`tasks.db`). It is ideal for learning SQL and building small backend applications.
 
 ---
 
-## Database Location
+## Project Structure
 
-The SQLite database file is stored in the project root.
-
+```text
+task-api-crud/
+│── images/
+│── server.js
+│── openapi.json
+│── package.json
+│── README.md
+│── tasks.db
+└── .gitignore
 ```
-tasks.db
-```
-
-The database and the `tasks` table are automatically created when the application starts if they do not already exist.
 
 ---
 
@@ -43,6 +62,12 @@ Clone the repository:
 
 ```bash
 git clone https://github.com/rdivyatej-cloud/task-api-crud.git
+```
+
+Move into the project folder:
+
+```bash
+cd task-api-crud
 ```
 
 Install dependencies:
@@ -55,13 +80,11 @@ npm install
 
 ## Run the Project
 
-Start the server:
-
 ```bash
 node server.js
 ```
 
-The API will be available at:
+The API runs at:
 
 ```
 http://localhost:3000
@@ -99,23 +122,25 @@ This query returns all records from the `tasks` table.
 
 ## Database Screenshot
 
-Add a screenshot of the `tasks` table from DB Browser for SQLite here.
-
-Example:
-
-```
-images/database.png
-```
+![Database Screenshot](images/database.png)
 
 ---
 
-## Features
+## Learning Outcomes
 
-- SQLite database integration
-- Persistent storage
-- Automatic database creation
-- Automatic table creation
-- Three sample tasks inserted on first run
-- CRUD operations using SQL queries
-- Swagger API documentation
-- Error handling for invalid requests
+Through this project I learned:
+
+- Building REST APIs using Express.js
+- Implementing CRUD operations
+- Working with SQLite databases
+- Writing SQL queries
+- Using Swagger for API documentation
+- Version control with Git and GitHub
+
+---
+
+## Author
+
+**Divyatej**
+
+GitHub: https://github.com/rdivyatej-cloud

@@ -1,4 +1,2 @@
 node_modules/
 .env
-tasks.db
-tasks.db-journal

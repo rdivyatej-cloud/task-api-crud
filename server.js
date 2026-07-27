@@ -3,79 +3,42 @@ const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./openapi.json");
 require("dotenv").config();
 
-const { Pool } = require("pg");
+const supabase = require("./supabase");
+const auth = require("./middleware/auth");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
+// ========================
 // Middleware
+// ========================
+
 app.use(express.json());
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// =======================
-// PostgreSQL Connection
-// =======================
-
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-});
-
-// =======================
-// Initialize Database
-// =======================
-
-async function initializeDatabase() {
-    try {
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS tasks (
-                id SERIAL PRIMARY KEY,
-                title TEXT NOT NULL,
-                done BOOLEAN NOT NULL DEFAULT FALSE
-            );
-        `);
-
-        const result = await pool.query(
-            "SELECT COUNT(*) AS count FROM tasks"
-        );
-
-        if (parseInt(result.rows[0].count) === 0) {
-            await pool.query(`
-                INSERT INTO tasks (title, done)
-                VALUES
-                ('Learn Express', false),
-                ('Build CRUD API', false),
-                ('Push to GitHub', true);
-            `);
-
-            console.log("✅ Sample tasks inserted.");
-        }
-
-        console.log("✅ PostgreSQL connected.");
-    } catch (err) {
-        console.error("Database initialization failed:", err);
-        process.exit(1);
-    }
-}
-
-// =======================
-// Root Endpoint
-// =======================
+// ========================
+// Root
+// ========================
 
 app.get("/", (req, res) => {
     res.json({
-        name: "Task API",
-        version: "3.0",
+        name: "Authentication API",
+        version: "1.0",
         endpoints: [
-            "/health",
-            "/tasks",
+            "/auth/signup",
+            "/auth/login",
+            "/auth/logout",
+            "/public/info",
+            "/protected/profile",
+            "/protected/dashboard",
             "/docs"
         ]
     });
 });
 
-// =======================
-// Health Endpoint
-// =======================
+// ========================
+// Health
+// ========================
 
 app.get("/health", (req, res) => {
     res.json({
@@ -83,180 +46,194 @@ app.get("/health", (req, res) => {
     });
 });
 
-// =======================
-// GET All Tasks
-// =======================
+// ========================
+// Signup
+// ========================
 
-app.get("/tasks", async (req, res) => {
+app.post("/auth/signup", async (req, res) => {
+
     try {
-        const result = await pool.query(
-            "SELECT * FROM tasks ORDER BY id"
-        );
 
-        res.json(result.rows);
-    } catch (err) {
-        res.status(500).json({
-            error: err.message
-        });
-    }
-});
+        const { email, password } = req.body;
 
-// =======================
-// GET Task By ID
-// =======================
-
-app.get("/tasks/:id", async (req, res) => {
-    try {
-        const id = parseInt(req.params.id);
-
-        const result = await pool.query(
-            "SELECT * FROM tasks WHERE id = $1",
-            [id]
-        );
-
-        if (result.rows.length === 0) {
-            return res.status(404).json({
-                error: "Task not found"
-            });
-        }
-
-        res.json(result.rows[0]);
-
-    } catch (err) {
-        res.status(500).json({
-            error: err.message
-        });
-    }
-});
-
-// =======================
-// CREATE Task
-// =======================
-
-app.post("/tasks", async (req, res) => {
-    try {
-        const { title, done = false } = req.body;
-
-        if (!title || title.trim() === "") {
+        if (!email || !password) {
             return res.status(400).json({
-                error: "Title is required"
+                error: "Email and password are required"
             });
         }
 
-        const result = await pool.query(
-            `INSERT INTO tasks (title, done)
-             VALUES ($1, $2)
-             RETURNING *`,
-            [title.trim(), done]
-        );
-
-        res.status(201).json(result.rows[0]);
-
-    } catch (err) {
-        res.status(500).json({
-            error: err.message
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            password
         });
-    }
-});
 
-// =======================
-// UPDATE Task
-// =======================
-
-app.put("/tasks/:id", async (req, res) => {
-    try {
-        const id = parseInt(req.params.id);
-
-        const existing = await pool.query(
-            "SELECT * FROM tasks WHERE id = $1",
-            [id]
-        );
-
-        if (existing.rows.length === 0) {
-            return res.status(404).json({
-                error: "Task not found"
-            });
-        }
-
-        const currentTask = existing.rows[0];
-
-        const title =
-            req.body.title !== undefined
-                ? req.body.title.trim()
-                : currentTask.title;
-
-        if (title === "") {
+        if (error) {
             return res.status(400).json({
-                error: "Title cannot be empty"
+                error: error.message
             });
         }
 
-        const done =
-            req.body.done !== undefined
-                ? req.body.done
-                : currentTask.done;
-
-        const result = await pool.query(
-            `UPDATE tasks
-             SET title = $1,
-                 done = $2
-             WHERE id = $3
-             RETURNING *`,
-            [title, done, id]
-        );
-
-        res.json(result.rows[0]);
+        return res.status(201).json({
+            message: "User created successfully",
+            user: data.user
+        });
 
     } catch (err) {
-        res.status(500).json({
+
+        return res.status(500).json({
             error: err.message
         });
+
     }
+
 });
 
-// =======================
-// DELETE Task
-// =======================
+// ========================
+// Login
+// ========================
 
-app.delete("/tasks/:id", async (req, res) => {
+app.post("/auth/login", async (req, res) => {
+
     try {
-        const id = parseInt(req.params.id);
 
-        const result = await pool.query(
-            "DELETE FROM tasks WHERE id = $1 RETURNING *",
-            [id]
-        );
+        const { email, password } = req.body;
 
-        if (result.rows.length === 0) {
-            return res.status(404).json({
-                error: "Task not found"
+        if (!email || !password) {
+
+            return res.status(400).json({
+                error: "Email and password are required"
             });
+
         }
 
-        res.status(204).send();
+        const { data, error } =
+            await supabase.auth.signInWithPassword({
+                email,
+                password
+            });
+
+        if (error) {
+
+            return res.status(401).json({
+                error: "Invalid login credentials"
+            });
+
+        }
+
+        return res.status(200).json({
+
+            access_token: data.session.access_token,
+            refresh_token: data.session.refresh_token,
+            user: {
+                id: data.user.id,
+                email: data.user.email
+            }
+
+        });
 
     } catch (err) {
-        res.status(500).json({
+
+        return res.status(500).json({
             error: err.message
         });
+
     }
+
 });
 
-// =======================
+// ========================
+// Logout
+// ========================
+
+app.post("/auth/logout", auth, async (req, res) => {
+
+    try {
+
+        await supabase.auth.signOut();
+
+        return res.status(204).send();
+
+    } catch (err) {
+
+        return res.status(500).json({
+            error: err.message
+        });
+
+    }
+
+});
+
+// ========================
+// Public Route
+// ========================
+
+app.get("/public/info", (req, res) => {
+
+    res.status(200).json({
+        message: "Welcome stranger! This info is public."
+    });
+
+});
+
+// ========================
+// Protected Profile
+// ========================
+
+app.get("/protected/profile", auth, (req, res) => {
+
+    res.status(200).json({
+
+        id: req.user.id,
+        email: req.user.email,
+        created_at: req.user.created_at
+
+    });
+
+});
+
+// ========================
+// Protected Dashboard
+// ========================
+
+app.get("/protected/dashboard", auth, (req, res) => {
+
+    res.status(200).json({
+
+        message: "Welcome to your dashboard!",
+        email: req.user.email,
+        id: req.user.id
+
+    });
+
+});
+
+// ========================
 // Test Route
-// =======================
+// ========================
 
 app.get("/test", (req, res) => {
-    res.send("NEW SERVER IS RUNNING");
+    res.send("Authentication Server Running");
 });
 
-// =======================
-// Start Server
-// =======================
+// ========================
+// 404
+// ========================
 
-initializeDatabase().then(() => {
-    app.listen(PORT, () => {
-        console.log(`🚀 Server running on http://localhost:${PORT}`);
-        console.log(`📖 Swagger Docs: http://localhost:${PORT}/docs`);
+app.use((req, res) => {
+
+    res.status(404).json({
+        error: "Route not found"
     });
+
+});
+
+// ========================
+// Start Server
+// ========================
+
+app.listen(PORT, () => {
+
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`📖 Swagger Docs: http://localhost:${PORT}/docs`);
+
 });

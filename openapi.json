@@ -1,125 +1,69 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Task API",
+    "title": "Auth API",
     "version": "1.0.0",
-    "description": "A simple CRUD API built with Express."
+    "description": "Authentication API using Express and Supabase"
   },
   "servers": [
     {
       "url": "http://localhost:3000"
     }
   ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
   "paths": {
-    "/tasks": {
-      "get": {
-        "summary": "Get all tasks",
-        "responses": {
-          "200": {
-            "description": "List of tasks"
-          }
-        }
-      },
+    "/auth/signup": {
       "post": {
-        "summary": "Create a task",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "title": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Task created"
-          }
-        }
+        "summary": "Create a new user"
       }
     },
-    "/tasks/{id}": {
+    "/auth/login": {
+      "post": {
+        "summary": "Login user"
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "summary": "Logout user",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/public/info": {
       "get": {
-        "summary": "Get task by ID",
-        "parameters": [
+        "summary": "Public endpoint"
+      }
+    },
+    "/protected/profile": {
+      "get": {
+        "summary": "User profile",
+        "security": [
           {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
+            "BearerAuth": []
           }
-        ],
-        "responses": {
-          "200": {
-            "description": "Task found"
-          },
-          "404": {
-            "description": "Task not found"
-          }
-        }
-      },
-      "put": {
-        "summary": "Update a task",
-        "parameters": [
+        ]
+      }
+    },
+    "/protected/dashboard": {
+      "get": {
+        "summary": "Dashboard",
+        "security": [
           {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
+            "BearerAuth": []
           }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "title": {
-                    "type": "string"
-                  },
-                  "done": {
-                    "type": "boolean"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Task updated"
-          }
-        }
-      },
-      "delete": {
-        "summary": "Delete a task",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Task deleted"
-          }
-        }
+        ]
       }
     }
   }
-}
+}    

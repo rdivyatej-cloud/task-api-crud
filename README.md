@@ -1,199 +1,62 @@
-# Task API CRUD (PostgreSQL + Docker)
+# Auth API using Express & Supabase
 
-A RESTful Task Management API built with Node.js, Express.js, PostgreSQL, and Docker. The API supports full CRUD operations, uses PostgreSQL for persistent storage, and includes interactive API documentation with Swagger UI.
+## Overview
 
----
+This project is a secure authentication API built using Express.js and Supabase Auth.
 
 ## Features
 
-- RESTful CRUD API
-- PostgreSQL database
-- Dockerized PostgreSQL
-- Docker Compose support
-- Swagger API Documentation
-- Environment variable configuration using `.env`
-- Automatic database initialization
-- Sample task seeding
-- Persistent data storage
+- User Signup
+- User Login
+- User Logout
+- JWT Authentication
+- Protected Routes
+- Public Routes
+- Swagger Documentation
 
----
-
-## Technologies Used
+## Technologies
 
 - Node.js
 - Express.js
-- PostgreSQL
-- Docker
-- Docker Compose
-- pg
-- dotenv
+- Supabase
 - Swagger UI
-
----
-
-## Project Structure
-
-```
-task-api-crud/
-│── .env
-│── .env.example
-│── .gitignore
-│── docker-compose.yml
-│── openapi.json
-│── package.json
-│── package-lock.json
-│── README.md
-│── server.js
-│── images/
-```
-
----
+- dotenv
 
 ## Installation
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/rdivyatej-cloud/task-api-crud.git
-cd task-api-crud
-```
-
-### 2. Install dependencies
 
 ```bash
 npm install
 ```
 
-### 3. Create a `.env` file
+## Environment Variables
 
-Create a `.env` file in the project root.
-
-Example:
+Create a `.env` file.
 
 ```env
-DATABASE_URL=postgres://postgres:dev@localhost:5432/tasks
+SUPABASE_URL=your-project-url
+SUPABASE_KEY=your-anon-key
+PORT=3000
 ```
 
-### 4. Start PostgreSQL
-
-```bash
-docker compose up -d
-```
-
-### 5. Run the application
+Run
 
 ```bash
 node server.js
 ```
 
----
-
-## API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/` | API Information |
-| GET | `/health` | Health Check |
-| GET | `/tasks` | Get all tasks |
-| GET | `/tasks/:id` | Get task by ID |
-| POST | `/tasks` | Create a new task |
-| PUT | `/tasks/:id` | Update a task |
-| DELETE | `/tasks/:id` | Delete a task |
-
----
-
-## Example Request
-
-### Create Task
-
-**POST** `/tasks`
-
-```json
-{
-  "title": "Complete Assignment",
-  "done": false
-}
-```
-
-### Example Response
-
-```json
-{
-  "id": 4,
-  "title": "Complete Assignment",
-  "done": false
-}
-```
-
----
-
-## Swagger Documentation
-
-After starting the server, open:
+Swagger
 
 ```
 http://localhost:3000/docs
 ```
 
----
+## API Endpoints
 
-## Docker Commands
-
-Start PostgreSQL:
-
-```bash
-docker compose up -d
-```
-
-Stop PostgreSQL:
-
-```bash
-docker compose down
-```
-
-View running containers:
-
-```bash
-docker ps
-```
-
----
-
-## Environment Variables
-
-Create a `.env` file using the template in `.env.example`.
-
-Example:
-
-```env
-DATABASE_URL=postgres://postgres:dev@localhost:5432/tasks
-```
-
----
-
-## Testing
-
-Run the application:
-
-```bash
-node server.js
-```
-
-Test the following endpoints:
-
-- http://localhost:3000/
-- http://localhost:3000/health
-- http://localhost:3000/tasks
-- http://localhost:3000/docs
-
----
-
-## Author
-
-**Divyatej**
-
----
-
-## License
-
-This project was created for educational purposes as part of the Flyrank Backend API assignment.
+| Method | Endpoint | Auth |
+|---------|----------|------|
+| POST | /auth/signup | ❌ |
+| POST | /auth/login | ❌ |
+| POST | /auth/logout | ✅ |
+| GET | /public/info | ❌ |
+| GET | /protected/profile | ✅ |
+| GET | /protected/dashboard | ✅ |
